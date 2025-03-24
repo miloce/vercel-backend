@@ -4,6 +4,10 @@
     {
       "src": "api/*.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "public/*",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
@@ -11,6 +15,14 @@
       "src": "/api/(saveUserData|getUserData|getOpenid)",
       "dest": "/api/$1.js",
       "methods": ["GET", "POST"]
+    },
+    {
+      "src": "/",
+      "dest": "/public/index.html"
     }
-  ]
+  ],
+  "env": {
+    "WECHAT_APP_ID": "@wechat_app_id",
+    "WECHAT_APP_SECRET": "@wechat_app_secret"
+  }
 } 
