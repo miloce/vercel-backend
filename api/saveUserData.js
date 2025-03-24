@@ -15,18 +15,48 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.models.User || mongoose.model('User', userSchema);
 
-module.exports = async (req, res) => {
-  await connectDB();
+// 设置 CORS 头
+const setCorsHeaders = (res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+};
 
-  if (req.method === 'POST') {
-    const { userId, userData } = req.body;
-    try {
-      await User.findOneAndUpdate({ userId }, { userData }, { upsert: true });
-      res.status(200).send('Data saved successfully');
-    } catch (error) {
-      res.status(500).send('Error saving data');
+module.exports = async (req, res) => {
+  // 设置 CORS
+  setCorsHeaders(res);
+
+  // 处理 OPTIONS 请求
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+
+  try {
+    const { openid, ...userData } = req.body;
+
+    if (!openid) {
+      return res.status(400).json({
+        error: 'Missing openid parameter'
+      });
     }
-  } else {
-    res.status(405).send('Method Not Allowed');
+
+    // TODO: 保存数据到数据库
+    // 这里暂时只返回成功响应
+    return res.status(200).json({
+      message: '保存成功',
+      data: {
+        openid,
+        ...userData,
+        lastUpdate: new Date().toISOString()
+      }
+    });
+
+  } catch (error) {
+    console.error('Error in saveUserData:', error);
+    return res.status(500).json({
+      error: '服务器内部错误',
+      message: error.message
+    });
   }
 };

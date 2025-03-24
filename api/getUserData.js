@@ -15,18 +15,55 @@ const userSchema = new mongoose.Schema({
 
 const User = mongoose.models.User || mongoose.model('User', userSchema);
 
-module.exports = async (req, res) => {
-  await connectDB();
+// 设置 CORS 头
+const setCorsHeaders = (res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+};
 
-  if (req.method === 'GET') {
-    const { userId } = req.query;
-    try {
-      const user = await User.findOne({ userId });
-      res.status(200).json(user ? user.userData : {});
-    } catch (error) {
-      res.status(500).send('Error fetching data');
+module.exports = async (req, res) => {
+  // 设置 CORS
+  setCorsHeaders(res);
+
+  // 处理 OPTIONS 请求
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+
+  try {
+    const { openid } = req.query;
+
+    if (!openid) {
+      return res.status(400).json({
+        error: 'Missing openid parameter'
+      });
     }
-  } else {
-    res.status(405).send('Method Not Allowed');
+
+    // 返回默认数据结构
+    const userData = {
+      openid: openid,
+      name: '',
+      age: '',
+      gender: '',
+      height: '',
+      weight: '',
+      bodyFat: '',
+      bmi: '',
+      calorieIntake: '',
+      birthDate: '',
+      lastUpdate: new Date().toISOString()
+    };
+
+    // 返回成功响应
+    return res.status(200).json(userData);
+
+  } catch (error) {
+    console.error('Error in getUserData:', error);
+    return res.status(500).json({
+      error: '服务器内部错误',
+      message: error.message
+    });
   }
 };
