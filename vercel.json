@@ -20,9 +20,5 @@
       "src": "/",
       "dest": "/public/index.html"
     }
-  ],
-  "env": {
-    "WECHAT_APP_ID": "@wechat_app_id",
-    "WECHAT_APP_SECRET": "@wechat_app_secret"
-  }
+  ]
 } 
