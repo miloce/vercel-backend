@@ -16,6 +16,7 @@
       "dest": "/api/$1.js",
       "methods": ["GET", "POST"]
     },
+    
     {
       "src": "/",
       "dest": "/public/index.html"
