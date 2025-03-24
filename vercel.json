@@ -4,22 +4,17 @@
     {
       "src": "api/*.js",
       "use": "@vercel/node"
-    },
-    {
-      "src": "public/index.html",
-      "use": "@vercel/static"
     }
   ],
   "routes": [
     {
-      "src": "/",
-      "dest": "/public/index.html"
-    },
-    {
-      "src": "/api/(saveUserData|getUserData|getOpenid)\\.js",
-      "dest": "/api/$1.js",
-      "methods": ["GET", "POST"]
+      "src": "/api/(.*)",
+      "dest": "/api/$1",
+      "methods": ["GET", "POST", "OPTIONS"]
     }
-  ]
-
+  ],
+  "env": {
+    "WECHAT_APP_ID": "@wechat_app_id",
+    "WECHAT_APP_SECRET": "@wechat_app_secret"
+  }
 } 
