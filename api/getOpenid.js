@@ -1,9 +1,5 @@
 const axios = require('axios');
 
-// 微信小程序配置
-const WECHAT_APP_ID = process.env.WECHAT_APP_ID;
-const WECHAT_APP_SECRET = process.env.WECHAT_APP_SECRET;
-
 module.exports = async (req, res) => {
   // 设置 CORS 头
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -17,6 +13,7 @@ module.exports = async (req, res) => {
   }
 
   try {
+    // 获取 code 参数
     const { code } = req.query;
 
     if (!code) {
@@ -25,11 +22,22 @@ module.exports = async (req, res) => {
       });
     }
 
-    // 请求微信接口获取 openid
+    // 检查环境变量
+    const appId = process.env.WECHAT_APP_ID;
+    const appSecret = process.env.WECHAT_APP_SECRET;
+
+    if (!appId || !appSecret) {
+      console.error('Missing WECHAT_APP_ID or WECHAT_APP_SECRET');
+      return res.status(500).json({
+        error: 'Server configuration error'
+      });
+    }
+
+    // 请求微信接口
     const response = await axios.get('https://api.weixin.qq.com/sns/jscode2session', {
       params: {
-        appid: WECHAT_APP_ID,
-        secret: WECHAT_APP_SECRET,
+        appid: appId,
+        secret: appSecret,
         js_code: code,
         grant_type: 'authorization_code'
       }
@@ -37,22 +45,33 @@ module.exports = async (req, res) => {
 
     const { openid, session_key, errcode, errmsg } = response.data;
 
+    // 检查微信返回的错误
     if (errcode) {
+      console.error('WeChat API error:', errmsg);
       return res.status(400).json({
         error: errmsg
       });
     }
 
-    // 返回 openid 和 session_key
+    // 返回成功结果
     res.status(200).json({
       openid,
       session_key
     });
 
   } catch (error) {
-    console.error('Error getting openid:', error);
+    // 详细的错误日志
+    console.error('Error in getOpenid:', error);
+    console.error('Error details:', {
+      message: error.message,
+      stack: error.stack,
+      response: error.response?.data
+    });
+
+    // 返回错误响应
     res.status(500).json({
-      error: 'Internal server error'
+      error: 'Internal server error',
+      message: error.message
     });
   }
 }; 
