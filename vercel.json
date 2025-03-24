@@ -20,6 +20,6 @@
       "dest": "/api/$1.js",
       "methods": ["GET", "POST"]
     }
-  ],
+  ]
 
 } 
