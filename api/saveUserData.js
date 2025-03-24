@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const connectDB = async () => {
   if (mongoose.connection.readyState >= 1) return;
-  return mongoose.connect('mongodb+srv://miloce:miloce@miloce.nod1a.mongodb.net/miloce?retryWrites=true&w=majority', {
+  return mongoose.connect('mongodb+srv://miloce:miloce@miloce.nod1a.mongodb.net/?retryWrites=true&w=majority&appName=miloce', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   });
