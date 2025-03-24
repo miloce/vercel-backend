@@ -1,16 +1,11 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "api/*.js",  
-      "use": "@vercel/node"  
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(saveUserData|getUserData)\\.js",  
-      "dest": "/api/$1.js",  
-      "methods": ["GET", "POST"]  
-    }
-  ]
-}
+    "version": 2,
+    "builds": [
+      { "src": "api/*.js", "use": "@vercel/node" },
+      { "src": "public/index.html", "use": "@vercel/static" }
+    ],
+    "routes": [
+      { "src": "/", "dest": "/public/index.html" },
+      { "src": "/api/(saveUserData|getUserData)\\.js", "dest": "/api/$1.js", "methods": ["GET", "POST"] }
+    ]
+  }
