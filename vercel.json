@@ -2,15 +2,15 @@
   "version": 2,
   "builds": [
     {
-      "src": "api/*.js",  // 匹配所有 api 目录下的 JS 文件
-      "use": "@vercel/node"  // 使用 Node.js 运行时
+      "src": "api/*.js",  
+      "use": "@vercel/node"  
     }
   ],
   "routes": [
     {
-      "src": "/api/(saveUserData|getUserData)\\.js",  // 精准匹配两个 API
-      "dest": "/api/$1.js",  // 映射到对应的无服务器函数文件
-      "methods": ["GET", "POST"]  // 指定支持的 HTTP 方法
+      "src": "/api/(saveUserData|getUserData)\\.js",  
+      "dest": "/api/$1.js",  
+      "methods": ["GET", "POST"]  
     }
   ]
 }
