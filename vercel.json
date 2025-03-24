@@ -5,6 +5,16 @@
       { "src": "public/index.html", "use": "@vercel/static" }
     ],
     "routes": [
-      { "src": "/", "dest": "/public/index.html" }
+      { "src": "/", "dest": "/public/index.html" },
+      { 
+        "src": "/api/saveUserData", 
+        "dest": "/api/saveUserData.js",
+        "methods": ["GET", "POST"]
+      },
+      {
+        "src": "/api/getUserData",
+        "dest": "/api/getUserData.js",
+        "methods": ["GET", "POST"]
+      }
     ]
   }
