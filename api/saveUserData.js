@@ -22,6 +22,9 @@ const setCorsHeaders = (res) => {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 };
 
+// 模拟数据存储
+let userDataStore = new Map();
+
 module.exports = async (req, res) => {
   // 设置 CORS
   setCorsHeaders(res);
@@ -33,23 +36,39 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const { openid, ...userData } = req.body;
-
-    if (!openid) {
-      return res.status(400).json({
-        error: 'Missing openid parameter'
+    // 检查请求方法
+    if (req.method !== 'POST') {
+      return res.status(405).json({
+        error: '只支持 POST 请求'
       });
     }
 
-    // TODO: 保存数据到数据库
-    // 这里暂时只返回成功响应
+    // 获取请求数据
+    const data = req.body;
+    console.log('Received data:', data); // 调试日志
+
+    // 验证必要字段
+    if (!data || !data.openid) {
+      return res.status(400).json({
+        error: '缺少必要参数 openid'
+      });
+    }
+
+    // 保存数据
+    const userData = {
+      ...data,
+      lastUpdate: new Date().toISOString()
+    };
+
+    // 存储到 Map 中（临时存储，实际应该使用数据库）
+    userDataStore.set(data.openid, userData);
+    console.log('Saved data:', userData); // 调试日志
+
+    // 返回成功响应
     return res.status(200).json({
-      message: '保存成功',
-      data: {
-        openid,
-        ...userData,
-        lastUpdate: new Date().toISOString()
-      }
+      success: true,
+      message: '数据保存成功',
+      data: userData
     });
 
   } catch (error) {
