@@ -10,7 +10,18 @@ const connectDB = async () => {
 
 const userSchema = new mongoose.Schema({
   userId: String,
-  userData: Object,
+  userData: {
+    name: String,
+    age: String,
+    gender: String,
+    height: String,
+    weight: String,
+    bodyFat: String,
+    bmi: String,
+    calorieIntake: String,
+    birthDate: String,
+    lastUpdate: String
+  }
 });
 
 const User = mongoose.models.User || mongoose.model('User', userSchema);
@@ -43,40 +54,34 @@ module.exports = async (req, res) => {
       });
     }
 
-    // 获取请求数据
-    const data = req.body;
-    console.log('Received data:', data); // 调试日志
+    const { openid, field, value } = req.body;
+    console.log('Received update:', { openid, field, value });
 
-    // 验证必要字段
-    if (!data || !data.openid) {
-      return res.status(400).json({
-        error: '缺少必要参数 openid'
-      });
+    if (!openid || !field) {
+      return res.status(400).json({ error: '缺少必要参数' });
     }
 
-    // 准备要保存的数据
-    const userData = {
-      ...data,
-      lastUpdate: new Date().toISOString()
+    // 构建更新对象
+    const updateData = {
+      [`userData.${field}`]: value,
+      'userData.lastUpdate': new Date().toISOString()
     };
 
-    // 使用 MongoDB 保存数据
+    // 只更新指定字段
     const result = await User.findOneAndUpdate(
-      { userId: data.openid },
+      { userId: openid },
       { 
-        userId: data.openid,
-        userData: userData 
+        $set: updateData
       },
       { upsert: true, new: true }
     );
 
-    console.log('Saved to MongoDB:', result);
+    console.log('Updated MongoDB:', result);
 
-    // 返回成功响应
     return res.status(200).json({
       success: true,
       message: '数据保存成功',
-      data: userData
+      data: result.userData
     });
 
   } catch (error) {
