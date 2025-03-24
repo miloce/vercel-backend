@@ -10,7 +10,7 @@
     {
       "src": "/api/(.*)",
       "dest": "/api/$1",
-      "methods": ["GET", "POST", "OPTIONS"]
+      "methods": ["GET", "POST"]
     }
   ]
 } 
