@@ -21,22 +21,20 @@ const setCorsHeaders = (res) => {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 };
 
-// 使用相同的数据存储
-let userDataStore = new Map();
-
 module.exports = async (req, res) => {
-  // 设置 CORS
   setCorsHeaders(res);
 
-  // 处理 OPTIONS 请求
   if (req.method === 'OPTIONS') {
     res.status(200).end();
     return;
   }
 
   try {
+    // 连接数据库
+    await connectDB();
+
     const { openid } = req.query;
-    console.log('Requesting data for openid:', openid); // 调试日志
+    console.log('Requesting data for openid:', openid);
 
     if (!openid) {
       return res.status(400).json({
@@ -44,13 +42,13 @@ module.exports = async (req, res) => {
       });
     }
 
-    // 从存储中获取数据
-    let userData = userDataStore.get(openid);
-    console.log('Retrieved data:', userData); // 调试日志
+    // 从 MongoDB 获取数据
+    const user = await User.findOne({ userId: openid });
+    console.log('Retrieved from MongoDB:', user);
 
     // 如果没有找到数据，返回默认值
-    if (!userData) {
-      userData = {
+    if (!user) {
+      const defaultData = {
         openid: openid,
         name: '',
         age: '',
@@ -63,10 +61,11 @@ module.exports = async (req, res) => {
         birthDate: '',
         lastUpdate: new Date().toISOString()
       };
+      return res.status(200).json(defaultData);
     }
 
-    // 返回数据
-    return res.status(200).json(userData);
+    // 返回找到的数据
+    return res.status(200).json(user.userData);
 
   } catch (error) {
     console.error('Error in getUserData:', error);

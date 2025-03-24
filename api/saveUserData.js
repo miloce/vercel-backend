@@ -22,9 +22,6 @@ const setCorsHeaders = (res) => {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 };
 
-// 模拟数据存储
-let userDataStore = new Map();
-
 module.exports = async (req, res) => {
   // 设置 CORS
   setCorsHeaders(res);
@@ -36,6 +33,9 @@ module.exports = async (req, res) => {
   }
 
   try {
+    // 连接数据库
+    await connectDB();
+
     // 检查请求方法
     if (req.method !== 'POST') {
       return res.status(405).json({
@@ -54,15 +54,23 @@ module.exports = async (req, res) => {
       });
     }
 
-    // 保存数据
+    // 准备要保存的数据
     const userData = {
       ...data,
       lastUpdate: new Date().toISOString()
     };
 
-    // 存储到 Map 中（临时存储，实际应该使用数据库）
-    userDataStore.set(data.openid, userData);
-    console.log('Saved data:', userData); // 调试日志
+    // 使用 MongoDB 保存数据
+    const result = await User.findOneAndUpdate(
+      { userId: data.openid },
+      { 
+        userId: data.openid,
+        userData: userData 
+      },
+      { upsert: true, new: true }
+    );
+
+    console.log('Saved to MongoDB:', result);
 
     // 返回成功响应
     return res.status(200).json({
