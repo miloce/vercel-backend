@@ -27,17 +27,40 @@ const healthRecordSchema = new mongoose.Schema({
 const HealthRecord = mongoose.models.HealthRecord || mongoose.model('HealthRecord', healthRecordSchema);
 
 module.exports = async (req, res) => {
-  await connectDB();
+  try {
+    await connectDB();
 
-  if (req.method === 'GET') {
-    const { userId, date } = req.query;
-    try {
+    if (req.method === 'GET') {
+      const { userId, date } = req.query;
       const record = await HealthRecord.findOne({ userId, date });
-      res.status(200).json(record || {});
-    } catch (error) {
-      res.status(500).send('Error fetching health record');
+      
+      // 统一返回格式
+      res.status(200).json({
+        success: true,
+        data: record || {
+          userId,
+          date,
+          weight: 0,
+          meals: [],
+          exercise: {
+            duration: 0,
+            calories: 0,
+            type: ''
+          }
+        }
+      });
+    } else {
+      res.status(405).json({
+        success: false,
+        error: 'Method Not Allowed'
+      });
     }
-  } else {
-    res.status(405).send('Method Not Allowed');
+  } catch (error) {
+    console.error('Error fetching health record:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Error fetching health record',
+      details: error.message
+    });
   }
 }; 
