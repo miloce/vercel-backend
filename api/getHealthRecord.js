@@ -9,8 +9,8 @@ const connectDB = async () => {
 };
 
 const healthRecordSchema = new mongoose.Schema({
-  userId: String,
-  date: String,
+  userId: { type: String, required: true },
+  date: { type: String, required: true },
   weight: Number,
   meals: [{
     type: String,
@@ -22,22 +22,29 @@ const healthRecordSchema = new mongoose.Schema({
     calories: Number,
     type: String
   }
-});
+}, { timestamps: true });
 
 const HealthRecord = mongoose.models.HealthRecord || mongoose.model('HealthRecord', healthRecordSchema);
 
 module.exports = async (req, res) => {
-  await connectDB();
+  try {
+    await connectDB();
 
-  if (req.method === 'GET') {
-    const { userId, date } = req.query;
-    try {
-      const record = await HealthRecord.findOne({ userId, date });
-      res.status(200).json(record || {});
-    } catch (error) {
-      res.status(500).send('Error fetching health record');
+    if (req.method !== 'GET') {
+      return res.status(405).json({ error: 'Method Not Allowed' });
     }
-  } else {
-    res.status(405).send('Method Not Allowed');
+
+    const { userId, date } = req.query;
+
+    if (!userId || !date) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    const record = await HealthRecord.findOne({ userId, date });
+    
+    res.status(200).json({ success: true, data: record || null });
+  } catch (error) {
+    console.error('Get health record error:', error);
+    res.status(500).json({ error: 'Error fetching health record', details: error.message });
   }
 }; 
