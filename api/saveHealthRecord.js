@@ -13,16 +13,14 @@ const healthRecordSchema = new mongoose.Schema({
   date: String,
   weight: Number,
   meals: [{
-    type: String,
+    type: { type: String },
     calories: Number,
     description: String
   }],
   exercise: {
-    type: new mongoose.Schema({
-      duration: Number,
-      calories: Number,
-      type: String
-    }, { _id: false })
+    duration: Number,
+    calories: Number,
+    type: String
   }
 });
 
@@ -34,16 +32,28 @@ module.exports = async (req, res) => {
   if (req.method === 'POST') {
     const { userId, date, weight, meals, exercise } = req.body;
     try {
-      await HealthRecord.findOneAndUpdate(
+      console.log('Saving record:', { userId, date, weight, meals, exercise });
+      const result = await HealthRecord.findOneAndUpdate(
         { userId, date }, 
-        { weight, meals, exercise },
-        { upsert: true }
+        { 
+          $set: {
+            weight: Number(weight) || 0,
+            meals: Array.isArray(meals) ? meals : [],
+            exercise: {
+              duration: Number(exercise?.duration) || 0,
+              calories: Number(exercise?.calories) || 0,
+              type: exercise?.type || '常规运动'
+            }
+          }
+        },
+        { upsert: true, new: true }
       );
-      res.status(200).send('Health record saved successfully');
+      res.status(200).json({ message: 'Health record saved successfully', data: result });
     } catch (error) {
-      res.status(500).send('Error saving health record');
+      console.error('Save error:', error);
+      res.status(500).json({ error: 'Error saving health record', details: error.message });
     }
   } else {
-    res.status(405).send('Method Not Allowed');
+    res.status(405).json({ error: 'Method Not Allowed' });
   }
 }; 
