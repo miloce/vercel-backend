@@ -1,5 +1,9 @@
 const mongoose = require('mongoose');
 
+/**
+ * 数据库连接配置
+ * @returns {Promise} Mongoose连接实例
+ */
 const connectDB = async () => {
   if (mongoose.connection.readyState >= 1) return;
   return mongoose.connect('mongodb+srv://miloce:miloce@miloce.nod1a.mongodb.net/?retryWrites=true&w=majority&appName=miloce', {
@@ -8,52 +12,130 @@ const connectDB = async () => {
   });
 };
 
+/**
+ * 健康记录数据模型
+ */
 const healthRecordSchema = new mongoose.Schema({
-  userId: String,
-  date: String,
-  weight: Number,
+  userId: {
+    type: String,
+    required: true,
+    index: true
+  },
+  date: {
+    type: String,
+    required: true
+  },
+  weight: {
+    type: Number,
+    default: 0
+  },
+  // 饮食记录
   meals: [{
-    type: { type: String },
-    calories: Number,
-    description: String
+    mealType: {
+      type: String,
+      enum: ['breakfast', 'lunch', 'dinner', 'extra'],
+      required: true
+    },
+    calories: {
+      type: Number,
+      default: 0
+    },
+    description: {
+      type: String,
+      default: ''
+    }
   }],
+  // 运动记录
   exercise: {
-    duration: Number,
-    calories: Number,
-    type: String
+    duration: {
+      type: Number,
+      default: 0
+    },
+    calories: {
+      type: Number,
+      default: 0
+    },
+    exerciseType: {
+      type: String,
+      default: ''
+    }
+  },
+  // 记录创建和更新时间
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
   }
 });
 
 const HealthRecord = mongoose.models.HealthRecord || mongoose.model('HealthRecord', healthRecordSchema);
 
+/**
+ * API处理函数
+ * @param {Object} req - HTTP请求对象
+ * @param {Object} res - HTTP响应对象
+ */
 module.exports = async (req, res) => {
-  await connectDB();
+  try {
+    await connectDB();
 
-  if (req.method === 'POST') {
-    const { userId, date, weight, meals, exercise } = req.body;
-    try {
-      console.log('Saving record:', { userId, date, weight, meals, exercise });
-      const result = await HealthRecord.findOneAndUpdate(
-        { userId, date }, 
-        { 
-          $set: {
-            weight: Number(weight) || 0,
-            meals: Array.isArray(meals) ? meals : [],
-            exercise: {
-              duration: Number(exercise?.duration) || 0,
-              calories: Number(exercise?.calories) || 0,
-              type: exercise?.type || '常规运动'
-            }
-          }
+    if (req.method === 'POST') {
+      const { userId, date, weight, meals, exercise } = req.body;
+
+      // 数据验证
+      if (!userId || !date) {
+        return res.status(400).json({
+          error: 'Missing required fields',
+          details: 'userId and date are required'
+        });
+      }
+
+      // 构建更新数据
+      const updateData = {
+        weight: Number(weight) || 0,
+        meals: Array.isArray(meals) ? meals.map(meal => ({
+          mealType: meal.type,
+          calories: Number(meal.calories) || 0,
+          description: meal.description || ''
+        })) : [],
+        exercise: {
+          duration: Number(exercise?.duration) || 0,
+          calories: Number(exercise?.calories) || 0,
+          exerciseType: exercise?.type || ''
         },
-        { upsert: true, new: true }
+        updatedAt: new Date()
+      };
+
+      // 更新或创建记录
+      const record = await HealthRecord.findOneAndUpdate(
+        { userId, date },
+        updateData,
+        { 
+          upsert: true,
+          new: true,
+          runValidators: true
+        }
       );
-      res.status(200).json({ message: 'Health record saved successfully', data: result });
-    } catch (error) {
-      console.error('Save error:', error);
-      res.status(500).json({ error: 'Error saving health record', details: error.message });
+
+      res.status(200).json({
+        success: true,
+        message: 'Health record saved successfully',
+        data: record
+      });
+    } else {
+      res.status(405).json({
+        error: 'Method Not Allowed',
+        details: 'Only POST method is supported'
+      });
     }
-  } else {
-    res.status(405).json({ error: 'Method Not Allowed' });
+  } catch (error) {
+    console.error('Save health record error:', error);
+    res.status(500).json({
+      error: 'Error saving health record',
+      details: error.message
+    });
   }
 }; 
