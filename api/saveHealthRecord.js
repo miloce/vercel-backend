@@ -9,8 +9,8 @@ const connectDB = async () => {
 };
 
 const healthRecordSchema = new mongoose.Schema({
-  userId: { type: String, required: true },
-  date: { type: String, required: true },
+  userId: String,
+  date: String,
   weight: Number,
   meals: [{
     type: String,
@@ -18,44 +18,32 @@ const healthRecordSchema = new mongoose.Schema({
     description: String
   }],
   exercise: {
-    duration: Number,
-    calories: Number,
-    type: String
+    type: new mongoose.Schema({
+      duration: Number,
+      calories: Number,
+      type: String
+    }, { _id: false })
   }
-}, { timestamps: true });
-
-// 创建复合索引
-healthRecordSchema.index({ userId: 1, date: 1 }, { unique: true });
+});
 
 const HealthRecord = mongoose.models.HealthRecord || mongoose.model('HealthRecord', healthRecordSchema);
 
 module.exports = async (req, res) => {
-  try {
-    await connectDB();
+  await connectDB();
 
-    if (req.method !== 'POST') {
-      return res.status(405).json({ error: 'Method Not Allowed' });
-    }
-
+  if (req.method === 'POST') {
     const { userId, date, weight, meals, exercise } = req.body;
-
-    if (!userId || !date) {
-      return res.status(400).json({ error: 'Missing required fields' });
+    try {
+      await HealthRecord.findOneAndUpdate(
+        { userId, date }, 
+        { weight, meals, exercise },
+        { upsert: true }
+      );
+      res.status(200).send('Health record saved successfully');
+    } catch (error) {
+      res.status(500).send('Error saving health record');
     }
-
-    const record = await HealthRecord.findOneAndUpdate(
-      { userId, date },
-      { weight, meals, exercise },
-      { 
-        upsert: true, 
-        new: true,
-        runValidators: true 
-      }
-    );
-
-    res.status(200).json({ success: true, data: record });
-  } catch (error) {
-    console.error('Save health record error:', error);
-    res.status(500).json({ error: 'Error saving health record', details: error.message });
+  } else {
+    res.status(405).send('Method Not Allowed');
   }
 }; 
