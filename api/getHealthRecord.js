@@ -9,18 +9,49 @@ const connectDB = async () => {
 };
 
 const healthRecordSchema = new mongoose.Schema({
-  userId: String,
-  date: String,
-  weight: Number,
-  meals: [{
+  userId: {
     type: String,
-    calories: Number,
-    description: String
+    required: true
+  },
+  date: {
+    type: String,
+    required: true
+  },
+  weight: {
+    type: Number,
+    default: 0
+  },
+  meals: [{
+    mealType: {
+      type: String,
+      enum: ['breakfast', 'lunch', 'dinner', 'extra']
+    },
+    calories: {
+      type: Number,
+      default: 0
+    },
+    description: {
+      type: String,
+      default: ''
+    }
   }],
   exercise: {
-    duration: Number,
-    calories: Number,
-    type: String
+    duration: {
+      type: Number,
+      default: 0
+    },
+    calories: {
+      type: Number,
+      default: 0
+    },
+    exerciseType: {
+      type: String,
+      default: ''
+    }
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
   }
 });
 
@@ -34,20 +65,41 @@ module.exports = async (req, res) => {
       const { userId, date } = req.query;
       const record = await HealthRecord.findOne({ userId, date });
       
-      // 统一返回格式
+      // 格式化返回数据
+      const formattedData = record ? {
+        userId: record.userId,
+        date: record.date,
+        weight: record.weight || 0,
+        meals: record.meals.map(meal => ({
+          type: meal.mealType,
+          calories: meal.calories,
+          description: meal.description
+        })),
+        exercise: record.exercise ? {
+          duration: record.exercise.duration,
+          calories: record.exercise.calories,
+          type: record.exercise.exerciseType
+        } : {
+          duration: 0,
+          calories: 0,
+          type: ''
+        },
+        updatedAt: record.updatedAt
+      } : {
+        userId,
+        date,
+        weight: 0,
+        meals: [],
+        exercise: {
+          duration: 0,
+          calories: 0,
+          type: ''
+        }
+      };
+
       res.status(200).json({
         success: true,
-        data: record || {
-          userId,
-          date,
-          weight: 0,
-          meals: [],
-          exercise: {
-            duration: 0,
-            calories: 0,
-            type: ''
-          }
-        }
+        data: formattedData
       });
     } else {
       res.status(405).json({
