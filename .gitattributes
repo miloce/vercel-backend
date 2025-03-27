@@ -1,0 +1,29 @@
+# 自动检测文本文件并执行LF标准化
+* text=auto
+
+# 源代码文件
+*.js text
+*.json text
+*.html text
+*.css text
+*.md text
+
+# 文档
+*.txt text
+
+# 脚本
+*.sh text
+*.bat text eol=crlf
+
+# 配置文件
+*.yml text
+*.yaml text
+*.xml text
+*.ini text
+*.conf text
+
+# 其他
+*.log text
+*.sql text
+*.csv text
+*.tsv text 
