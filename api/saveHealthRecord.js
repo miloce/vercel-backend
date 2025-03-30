@@ -45,7 +45,22 @@ const healthRecordSchema = new mongoose.Schema({
       default: ''
     }
   }],
-  // 运动记录
+  // 多个运动记录数组
+  exercises: [{
+    duration: {
+      type: Number,
+      default: 0
+    },
+    calories: {
+      type: Number,
+      default: 0
+    },
+    type: {
+      type: String,
+      default: ''
+    }
+  }],
+  // 保留单个运动记录字段，保持向后兼容
   exercise: {
     duration: {
       type: Number,
@@ -83,7 +98,7 @@ module.exports = async (req, res) => {
     await connectDB();
 
     if (req.method === 'POST') {
-      const { userId, date, weight, meals, exercise } = req.body;
+      const { userId, date, weight, meals, exercises, exercise } = req.body;
 
       // 数据验证
       if (!userId || !date) {
@@ -101,13 +116,28 @@ module.exports = async (req, res) => {
           calories: Number(meal.calories) || 0,
           description: meal.description || ''
         })) : [],
-        exercise: {
-          duration: Number(exercise?.duration) || 0,
-          calories: Number(exercise?.calories) || 0,
-          exerciseType: exercise?.type || ''
-        },
         updatedAt: new Date()
       };
+
+      // 处理新的exercises数组
+      if (Array.isArray(exercises) && exercises.length > 0) {
+        updateData.exercises = exercises.map(ex => ({
+          duration: Number(ex.duration) || 0,
+          calories: Number(ex.calories) || 0,
+          type: ex.type || ''
+        }));
+      } else {
+        updateData.exercises = [];
+      }
+
+      // 保留对旧版本的兼容性
+      if (exercise) {
+        updateData.exercise = {
+          duration: Number(exercise.duration) || 0,
+          calories: Number(exercise.calories) || 0,
+          exerciseType: exercise.type || ''
+        };
+      }
 
       // 更新或创建记录
       const record = await HealthRecord.findOneAndUpdate(
