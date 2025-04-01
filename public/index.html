@@ -360,6 +360,58 @@ Response:
             </li>
             <li class="api-item">
                 <span class="method post">POST</span>
+                <span class="endpoint">/api/getWeRunData</span>
+                <div class="description">获取微信运动步数数据</div>
+                <div class="params">
+                    <div class="param-item">
+                        <span class="param-name">code</span>
+                        <span class="param-type">string</span>
+                        <span class="param-required">必填</span>
+                        <div>微信登录临时凭证</div>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">encryptedData</span>
+                        <span class="param-type">string</span>
+                        <span class="param-required">必填</span>
+                        <div>微信步数加密数据</div>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">iv</span>
+                        <span class="param-type">string</span>
+                        <span class="param-required">必填</span>
+                        <div>加密算法的初始向量</div>
+                    </div>
+                </div>
+                <div class="example">
+POST /api/getWeRunData
+Content-Type: application/json
+
+{
+  "code": "wx_code_123456789",
+  "encryptedData": "encrypted_data_string",
+  "iv": "iv_string"
+}
+
+Response:
+{
+  "success": true,
+  "data": {
+    "stepInfoList": [
+      {
+        "timestamp": 1617235200,
+        "step": 6789
+      },
+      {
+        "timestamp": 1617148800,
+        "step": 8123
+      }
+    ]
+  },
+  "openid": "wx_openid_123456789"
+}</div>
+            </li>
+            <li class="api-item">
+                <span class="method post">POST</span>
                 <span class="endpoint">/api/getWxacode</span>
                 <div class="description">获取带参数的小程序码</div>
                 <div class="params">
