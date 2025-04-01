@@ -7,7 +7,7 @@
   "routes": [
     { "src": "/", "dest": "/public/index.html" },
     { 
-      "src": "/api/(saveUserData|getUserData|getOpenId|getHealthRecord|saveHealthRecord|saveBodyStats|getBodyStats)",
+      "src": "/api/(saveUserData|getUserData|getOpenId|getHealthRecord|saveHealthRecord|saveBodyStats|getBodyStats|getWxacode)",
       "dest": "/api/$1.js",
       "methods": ["GET", "POST"]
     }

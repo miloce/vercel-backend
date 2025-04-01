@@ -358,6 +358,34 @@ Response:
   }
 }</div>
             </li>
+            <li class="api-item">
+                <span class="method post">POST</span>
+                <span class="endpoint">/api/getWxacode</span>
+                <div class="description">获取带参数的小程序码</div>
+                <div class="params">
+                    <div class="param-item">
+                        <span class="param-name">scene</span>
+                        <span class="param-type">string</span>
+                        <span class="param-required">必填</span>
+                        <div>场景值参数，用于传递数据，如 "id=123"</div>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">page</span>
+                        <span class="param-type">string</span>
+                        <div>小程序页面路径，默认为 'pages/run/statement'</div>
+                    </div>
+                </div>
+                <div class="example">
+POST /api/getWxacode
+Content-Type: application/json
+
+{
+  "scene": "id=123456",
+  "page": "pages/run/statement"
+}
+
+Response: 小程序码图片数据 (image/png)</div>
+            </li>
         </ul>
     </div>
 
