@@ -49,20 +49,6 @@ const healthRecordSchema = new mongoose.Schema({
       default: ''
     }
   }],
-  exercise: {
-    duration: {
-      type: Number,
-      default: 0
-    },
-    calories: {
-      type: Number,
-      default: 0
-    },
-    exerciseType: {
-      type: String,
-      default: ''
-    }
-  },
   updatedAt: {
     type: Date,
     default: Date.now
@@ -95,15 +81,6 @@ module.exports = async (req, res) => {
             calories: ex.calories || 0,
             type: ex.type || ''
           })) : [],
-        exercise: record.exercise ? {
-          duration: record.exercise.duration,
-          calories: record.exercise.calories,
-          type: record.exercise.exerciseType
-        } : {
-          duration: 0,
-          calories: 0,
-          type: ''
-        },
         updatedAt: record.updatedAt
       } : {
         userId,
@@ -111,22 +88,7 @@ module.exports = async (req, res) => {
         weight: 0,
         meals: [],
         exercises: [],
-        exercise: {
-          duration: 0,
-          calories: 0,
-          type: ''
-        }
       };
-
-      // 兼容处理：如果没有exercises数组但有exercise对象，将exercise转换为exercises数组的第一项
-      if ((!formattedData.exercises || formattedData.exercises.length === 0) 
-          && formattedData.exercise && (formattedData.exercise.duration > 0 || formattedData.exercise.calories > 0)) {
-        formattedData.exercises = [{
-          duration: formattedData.exercise.duration,
-          calories: formattedData.exercise.calories,
-          type: formattedData.exercise.type
-        }];
-      }
 
       res.status(200).json({
         success: true,

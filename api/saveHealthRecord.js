@@ -60,21 +60,6 @@ const healthRecordSchema = new mongoose.Schema({
       default: ''
     }
   }],
-  // 保留单个运动记录字段，保持向后兼容
-  exercise: {
-    duration: {
-      type: Number,
-      default: 0
-    },
-    calories: {
-      type: Number,
-      default: 0
-    },
-    exerciseType: {
-      type: String,
-      default: ''
-    }
-  },
   // 记录创建和更新时间
   createdAt: {
     type: Date,
@@ -98,7 +83,7 @@ module.exports = async (req, res) => {
     await connectDB();
 
     if (req.method === 'POST') {
-      const { userId, date, weight, meals, exercises, exercise } = req.body;
+      const { userId, date, weight, meals, exercises } = req.body;
 
       // 数据验证
       if (!userId || !date) {
@@ -128,15 +113,6 @@ module.exports = async (req, res) => {
         }));
       } else {
         updateData.exercises = [];
-      }
-
-      // 保留对旧版本的兼容性
-      if (exercise) {
-        updateData.exercise = {
-          duration: Number(exercise.duration) || 0,
-          calories: Number(exercise.calories) || 0,
-          exerciseType: exercise.type || ''
-        };
       }
 
       // 更新或创建记录
