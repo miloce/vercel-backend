@@ -8,7 +8,6 @@
    },
     "dependencies": {
       "mongoose": "^5.13.8",
-      "axios": "^1.6.0",
-      "qiniu": "^7.8.0"
+      "axios": "^1.6.0"
     }
   }
