@@ -260,6 +260,186 @@ Content-Type: application/json
     </div>
 
     <div class="container">
+        <h2>跑步记录管理</h2>
+        <ul class="api-list">
+            <li class="api-item">
+                <span class="method get">GET</span>
+                <span class="endpoint">/api/getRunRecords</span>
+                <div class="description">获取用户的跑步记录</div>
+                <div class="params">
+                    <div class="param-item">
+                        <span class="param-name">userId</span>
+                        <span class="param-type">string</span>
+                        <span class="param-required">必填</span>
+                        <div>用户唯一标识</div>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">runId</span>
+                        <span class="param-type">string</span>
+                        <div>跑步记录ID（不填则获取列表）</div>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">limit</span>
+                        <span class="param-type">number</span>
+                        <div>每页记录数量（默认10）</div>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">skip</span>
+                        <span class="param-type">number</span>
+                        <div>跳过的记录数量（分页用）</div>
+                    </div>
+                </div>
+                <div class="example">
+GET /api/getRunRecords?userId=user123&limit=10&skip=0
+
+Response:
+{
+  "success": true,
+  "data": {
+    "records": [
+      {
+        "runId": "run_123456",
+        "date": "2023-04-05",
+        "time": "00:30:15",
+        "distance": 3.5,
+        "speed": "8'35\"",
+        "calories": 280,
+        "runType": 0
+      },
+      // 更多记录...
+    ],
+    "total": 25,
+    "page": 1,
+    "limit": 10
+  }
+}</div>
+            </li>
+            <li class="api-item">
+                <span class="method post">POST</span>
+                <span class="endpoint">/api/saveRunRecord</span>
+                <div class="description">保存用户的跑步记录</div>
+                <div class="params">
+                    <div class="param-item">
+                        <span class="param-name">userId</span>
+                        <span class="param-type">string</span>
+                        <span class="param-required">必填</span>
+                        <div>用户唯一标识</div>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">runId</span>
+                        <span class="param-type">string</span>
+                        <span class="param-required">必填</span>
+                        <div>跑步记录ID</div>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">date</span>
+                        <span class="param-type">string</span>
+                        <div>记录日期 (YYYY-MM-DD)</div>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">time</span>
+                        <span class="param-type">string</span>
+                        <div>运动时间 (HH:MM:SS)</div>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">distance</span>
+                        <span class="param-type">number</span>
+                        <div>跑步距离（公里）</div>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">speed</span>
+                        <span class="param-type">string</span>
+                        <div>平均配速</div>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">calories</span>
+                        <span class="param-type">number</span>
+                        <div>消耗卡路里</div>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">runType</span>
+                        <span class="param-type">number</span>
+                        <div>跑步类型（0:户外跑, 1:室内跑）</div>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">points</span>
+                        <span class="param-type">array</span>
+                        <div>轨迹点数组（仅户外跑）</div>
+                    </div>
+                </div>
+                <div class="example">
+POST /api/saveRunRecord
+Content-Type: application/json
+
+{
+  "userId": "user123",
+  "runId": "run_123456",
+  "date": "2023-04-05",
+  "time": "00:30:15",
+  "distance": 3.5,
+  "speed": "8'35\"",
+  "calories": 280,
+  "runType": 0,
+  "points": [
+    {"latitude": 39.9042, "longitude": 116.4074, "timestamp": 1617606000},
+    {"latitude": 39.9043, "longitude": 116.4075, "timestamp": 1617606010}
+  ]
+}</div>
+            </li>
+            <li class="api-item">
+                <span class="method post">POST</span>
+                <span class="endpoint">/api/shareRunRecord</span>
+                <div class="description">分享跑步记录并更新分享计数</div>
+                <div class="params">
+                    <div class="param-item">
+                        <span class="param-name">userId</span>
+                        <span class="param-type">string</span>
+                        <span class="param-required">必填</span>
+                        <div>用户唯一标识</div>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">runId</span>
+                        <span class="param-type">string</span>
+                        <span class="param-required">必填</span>
+                        <div>跑步记录ID</div>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-name">shareType</span>
+                        <span class="param-type">string</span>
+                        <div>分享类型（如 'timeline', 'werun', 'appMessage' 等）</div>
+                    </div>
+                </div>
+                <div class="example">
+POST /api/shareRunRecord
+Content-Type: application/json
+
+{
+  "userId": "user123",
+  "runId": "run_123456",
+  "shareType": "timeline"
+}
+
+Response:
+{
+  "success": true,
+  "message": "Share record updated successfully",
+  "data": {
+    "record": {
+      // 跑步记录详情
+    },
+    "shareData": {
+      "title": "我完成了3.5公里跑步，消耗了280卡路里！",
+      "path": "/pages/run-share/run-share?runId=run_123456&userId=user123",
+      "imageUrl": "https://static.luozhinet.com/xcx/assets/icons/share-run.png",
+      "shareType": "timeline"
+    }
+  }
+}</div>
+            </li>
+        </ul>
+    </div>
+
+    <div class="container">
         <h2>身体数据统计</h2>
         <ul class="api-list">
             <li class="api-item">
