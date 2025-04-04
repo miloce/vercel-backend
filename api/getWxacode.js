@@ -30,7 +30,7 @@ module.exports = async (req, res) => {
     return res.status(405).send('Method Not Allowed');
   }
 
-  const { scene, page = 'pages/run-share/run-share' } = req.body;
+  const { scene, page = 'pages/run/statement' } = req.body;
 
   if (!scene) {
     return res.status(400).send('Scene parameter is required');
