@@ -87,17 +87,17 @@ module.exports = async (req, res) => {
     if (req.method === 'GET') {
       const { userId, runId, limit = 10, skip = 0 } = req.query;
 
-      // 数据验证
-      if (!userId) {
-        return res.status(400).json({
-          error: 'Missing required field',
-          details: 'userId is required'
-        });
-      }
-
-      // 如果提供了runId，则获取单条记录
+      // 如果提供了runId，则仅使用runId查询，不需要userId
       if (runId) {
-        const record = await RunRecord.findOne({ userId, runId });
+        // 无需userId的runId查询
+        let query = { runId };
+        
+        // 如果提供了userId，添加到查询条件
+        if (userId) {
+          query.userId = userId;
+        }
+        
+        const record = await RunRecord.findOne(query);
         
         if (!record) {
           return res.status(404).json({
@@ -116,7 +116,15 @@ module.exports = async (req, res) => {
         });
       }
       
-      // 否则获取用户的所有记录
+      // 如果没有runId，则必须有userId
+      if (!userId) {
+        return res.status(400).json({
+          error: 'Missing required field',
+          details: 'userId is required when runId is not provided'
+        });
+      }
+
+      // 获取用户的所有记录
       const limitNum = parseInt(limit);
       const skipNum = parseInt(skip);
       
