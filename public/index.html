@@ -123,6 +123,30 @@
             color: #666;
             font-size: 0.9em;
         }
+        .developer-info {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            border-left: 4px solid #2196F3;
+        }
+        .contact-item {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            padding: 8px;
+            background: #fff;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        .contact-item:hover {
+            background: #f0f7ff;
+        }
+        .contact-icon {
+            margin-right: 10px;
+            color: #2196F3;
+            font-size: 1.2em;
+        }
     </style>
 </head>
 <body>
@@ -629,8 +653,25 @@ Response: 小程序码图片数据 (image/png)</div>
         <p>响应格式：JSON</p>
     </div>
 
+    <div class="container">
+        <h2>开发者信息</h2>
+        <div class="developer-info">
+            <p>本项目是参考国家卫健委发布的《体重管理指导原则（2024年版）》，由在校学生个人开发的学习项目，旨在为用户提供科学的体重管理工具。</p>
+            <h3>联系方式</h3>
+            <div class="contact-item">
+                <span class="contact-icon">📧</span>
+                <span>邮箱：microne@qq.com</span>
+            </div>
+            <div class="contact-item">
+                <span class="contact-icon">💬</span>
+                <span>微信小程序内可直接联系客服或提交反馈</span>
+            </div>
+        </div>
+    </div>
+
     <div class="footer">
         <p>© 2025 健康管理小程序 API 服务</p>
         <p>基于 Serverless 架构开发</p>
     </div>
 </body>
+</html>
